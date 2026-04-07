@@ -20,7 +20,7 @@ namespace ApiOAuthEmpleados.Controllers
             this.helper = helper;
         }
 
-            [HttpPost]
+        [HttpPost]
         [Route("[action]")]
         public async Task<ActionResult>Login(LogicModel model)
         {
