@@ -4,6 +4,9 @@ using ApiOAuthEmpleados.Models;
 using Microsoft.IdentityModel.Tokens;
 using ApiOAuthEmpleados.Helpers;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace ApiOAuthEmpleados.Controllers
 {
@@ -14,6 +17,7 @@ namespace ApiOAuthEmpleados.Controllers
         private Repositories.RepositoryHospital repo;
         private HelperActionOAuthService helper;
         
+        // Inject both the repository and the helper
         public AuthController(Repositories.RepositoryHospital repo, HelperActionOAuthService helper)
         {
             this.repo = repo;
@@ -33,7 +37,17 @@ namespace ApiOAuthEmpleados.Controllers
             else
             {
                 SigningCredentials credentials = new SigningCredentials(this.helper.GetKeyToken(), SecurityAlgorithms.HmacSha256);
+                
+                string jsonEmpleado = JsonConvert.SerializeObject(empleado);
+                
+                string jsonCifrado = await HelperCifrado.EncryptStringAsync(jsonEmpleado, this.helper.SecretKey);
+
+                Claim[] info = new[]
+                {
+                    new Claim("EmpleadoData", jsonCifrado)
+                };
                 JwtSecurityToken token = new JwtSecurityToken(
+                    claims: info,
                     issuer: this.helper.Issuer,
                     audience: this.helper.Audience,
                     expires: DateTime.Now.AddMinutes(15),
@@ -46,6 +60,9 @@ namespace ApiOAuthEmpleados.Controllers
                     Response = new JwtSecurityTokenHandler().WriteToken(token)
                 });
             }
-        }}
+        }
     }
+}
+
+
 

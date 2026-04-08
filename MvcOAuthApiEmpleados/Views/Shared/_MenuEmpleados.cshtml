@@ -1,0 +1,24 @@
+﻿@if (Context.User.Identity.IsAuthenticated)
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Empleados" asp-action="Index">Empleados</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Managed" asp-action="Logout">Logout @Context.User.Identity.Name</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Empleados" asp-action="PerfilEmpleado">Perfil con Claims</a>
+    </li>
+        <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Empleados" asp-action="Perfil">Perfil con TOKEN</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Empleados" asp-action="Compis">Compis con TOKEN</a>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="Managed" asp-action="Login">Login</a>
+    </li>
+}
