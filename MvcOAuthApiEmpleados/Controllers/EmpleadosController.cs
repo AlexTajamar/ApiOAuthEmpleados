@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MvcOAuthApiEmpleados.Models;
 using MvcOAuthApiEmpleados.Services;
 using MvcOAuthEmpleados.Filters;
@@ -30,7 +31,7 @@ namespace MvcOAuthApiEmpleados.Controllers
               return View(empleado);
             
         }
-
+        [Authorize(Roles ="PRESIDENTE")]
         [AuthorizeEmpleados]
         //AL PASAR POR AQUI EN EL CLAIM TENDRIAMSO EL TOKEN
         public async Task<IActionResult> PerfilEmpleado()

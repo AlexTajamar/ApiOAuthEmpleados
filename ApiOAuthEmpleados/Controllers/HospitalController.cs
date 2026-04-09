@@ -15,11 +15,13 @@ namespace ApiOAuthEmpleados.Controllers
     {
         public RepositoryHospital repo;
         private HelperActionOAuthService helper;
+        private HelperEmpleadoToken helperEmpleadoToken;
 
-        public HospitalController(RepositoryHospital repository, HelperActionOAuthService helper)
+        public HospitalController(RepositoryHospital repository, HelperActionOAuthService helper, HelperEmpleadoToken helperEmpleadoToken)
         {
             repo = repository;
             this.helper = helper;
+            this.helperEmpleadoToken = helperEmpleadoToken;
         }
 
         [HttpGet]
@@ -42,12 +44,8 @@ namespace ApiOAuthEmpleados.Controllers
         [Route("[action]")]
         public async Task<ActionResult<Empleado>> Perfil()
         {
-            Claim claim = HttpContext.User.FindFirst(z=>z.Type == "EmpleadoData");
-            string json = claim.Value; //INFO DEL USUARIO
-            string jsonDescifrado = await HelperCifrado.DecryptStringAsync(json, this.helper.SecretKey);
-            Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonDescifrado);
-            return await this.repo.FindEmpleadoAsync(empleado.IdEmpleado);
-
+            EmpleadoModel empleadoModel = await this.helperEmpleadoToken.GetEmpleado();
+            return await this.repo.FindEmpleadoAsync(empleadoModel.IdEmpleado);
         }
 
         [Authorize]
@@ -55,12 +53,9 @@ namespace ApiOAuthEmpleados.Controllers
         [Route("[action]")]
         public async Task<ActionResult<List<Empleado>>> Compis()
         {
-            Claim claim = HttpContext.User.FindFirst(z => z.Type == "EmpleadoData");
-            string json = claim.Value; //INFO DEL USUARIO
-            string jsonDescifrado = await HelperCifrado.DecryptStringAsync(json, this.helper.SecretKey);
-            Empleado empleado = JsonConvert.DeserializeObject<Empleado>(jsonDescifrado);
-            return await this.repo.GetCompisAsync(empleado.IdDepartamento);
-
+            EmpleadoModel empleadoModel = await this.helperEmpleadoToken.GetEmpleado();
+            return await this.repo.GetCompisAsync(empleadoModel.IdDepartamento);
         }
     }
 }
+           

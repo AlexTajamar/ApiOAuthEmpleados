@@ -18,6 +18,11 @@ builder.Services.AddSingleton<HelperActionOAuthService>(helper);
 builder.Services.AddAuthentication(helper.GetAuthSchema()).AddJwtBearer(helper.GetJwtBeaberOptions());
 builder.Services.AddOpenApi();
 
+// Registramos el acceso al Context (necesario para leer los claims del token en tu HelperEmpleadoToken)
+builder.Services.AddHttpContextAccessor();
+// Registramos la dependencia de HelperEmpleadoToken
+builder.Services.AddTransient<HelperEmpleadoToken>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

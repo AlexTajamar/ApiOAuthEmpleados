@@ -37,22 +37,36 @@ namespace ApiOAuthEmpleados.Controllers
             else
             {
                 SigningCredentials credentials = new SigningCredentials(this.helper.GetKeyToken(), SecurityAlgorithms.HmacSha256);
-                
-                string jsonEmpleado = JsonConvert.SerializeObject(empleado);
+
+                //CREAMOS NUESTRO MODELO PARA ALMACENARLO EN EL TOKEN
+                EmpleadoModel empleadoModel = new EmpleadoModel
+                {
+                    IdEmpleado = empleado.IdEmpleado,
+                    Apellido = empleado.Apellido,
+                    Oficio = empleado.Oficio,
+                    Salario = empleado.Salario,
+                    IdDepartamento = empleado.IdDepartamento
+                };
+
+
+
+                string jsonEmpleado = JsonConvert.SerializeObject(empleadoModel);
                 
                 string jsonCifrado = await HelperCifrado.EncryptStringAsync(jsonEmpleado, this.helper.SecretKey);
 
                 Claim[] info = new[]
                 {
-                    new Claim("EmpleadoData", jsonCifrado)
+                    new Claim("EmpleadoData", jsonCifrado),
+                    new Claim(ClaimTypes.Role, empleado.Oficio)
                 };
                 JwtSecurityToken token = new JwtSecurityToken(
                     claims: info,
                     issuer: this.helper.Issuer,
                     audience: this.helper.Audience,
-                    expires: DateTime.Now.AddMinutes(15),
+                    // CAMBIO AQUI: Utiliza DateTime.UtcNow para el token en vez de Now
+                    expires: DateTime.UtcNow.AddMinutes(15),
                     signingCredentials: credentials,
-                    notBefore: DateTime.Now
+                    notBefore: DateTime.UtcNow
                     );
 
                 return Ok(new
@@ -63,6 +77,7 @@ namespace ApiOAuthEmpleados.Controllers
         }
     }
 }
+
 
 
 
