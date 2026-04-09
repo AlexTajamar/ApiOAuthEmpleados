@@ -58,16 +58,17 @@ namespace ApiOAuthEmpleados.Repositories
 
         public async Task IncrementarSalariosAsync(int incremento, List<string> oficios)
         {
-           List<Empleado> empleados = await this.GetEmpleadosByOficiosAsync(oficios);
+            List<Empleado> empleados = await this.GetEmpleadosByOficiosAsync(oficios);
 
             foreach (var empleado in empleados)
             {
-            {
-                empleado.Salario += incremento;
-            }
+                {
+                    empleado.Salario += incremento;
+                }
 
-            await this.context.SaveChangesAsync();
+                await this.context.SaveChangesAsync();
+            }
         }
     }
-    }
+}
 

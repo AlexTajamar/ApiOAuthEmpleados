@@ -31,13 +31,40 @@ namespace MvcOAuthApiEmpleados.Controllers
               return View(empleado);
             
         }
+
+        public async Task<ActionResult> EmpleadosOficios()
+        {
+            List<string> oficios = await this.service.GetOficiosAsync();
+            ViewData["OFICIOS"] = oficios;
+            return View();
+
+        }
+        [HttpPost]
+        public async Task<ActionResult> EmpleadosOficios(int? incremento,List<string> oficio,string accion)
+        {
+            List<string> oficios = await this.service.GetOficiosAsync();
+            ViewData["OFICIOS"] = oficios;
+            if (accion.ToLower() == "update")
+            {
+                await this.service.UpdateEmpleadosAsync(incremento.Value, oficio);
+
+            }
+            List<Empleado> empleados = await this.service.GetEmpleadosOficiosAsync(oficio);
+            return View(empleados);
+        }
+
+
         [Authorize(Roles ="PRESIDENTE")]
         [AuthorizeEmpleados]
-        //AL PASAR POR AQUI EN EL CLAIM TENDRIAMSO EL TOKEN
+        //AL PASAR POR AHI EN EL CLAIM TENDRIAMSO EL TOKEN
         public async Task<IActionResult> PerfilEmpleado()
         {
-            var data = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-           int idEmpleado = int.Parse(data);
+            var data = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (data == null)
+            {
+                return Unauthorized();
+            }
+            int idEmpleado = int.Parse(data);
             Empleado empleado = await this.service.FindEmpleadoAsync(idEmpleado);
             return View(empleado);
         }

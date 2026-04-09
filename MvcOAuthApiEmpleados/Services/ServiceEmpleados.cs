@@ -124,6 +124,54 @@ namespace MvcOAuthApiEmpleados.Services
             string request = "api/Hospital/Perfil";
             Empleado empleado = await CallApiAsync<Empleado>(token, request);
             return empleado;
-        }    
+        }
+
+        //necesitamos generar el siguietne request oficio=ANALISTA oficio=DIRECTOR a partir de un List<string>
+        //vamos a crear un metodo wue devuelva este string a partir de un List<string>
+
+        public string GetOficiosRequest(List<string> oficios)
+        {
+            string result = "";
+            for (int i = 0; i < oficios.Count; i++)
+            {
+                // Cambiado "oficio=" a "oficios=" para coincidir con el [FromQuery] de la API
+                result += "oficios=" + oficios[i];
+                if (i < oficios.Count - 1)
+                {
+                    result += "&";
+                }
+            }
+            return result;
+        }
+
+        public async Task<List<Empleado>> GetEmpleadosOficiosAsync(List<string> oficios)
+        {
+            // Faltaba el símbolo '?' para iniciar el QueryString
+            string request = "api/Hospital/EmpleadosByOficios?" + GetOficiosRequest(oficios);
+            List<Empleado> empleados = await CallApiAsync<List<Empleado>>(request);
+            return empleados;
+        }
+
+        public async Task UpdateEmpleadosAsync(int incremento, List<string> oficios)
+        {
+            // El 'incremento' es un path parameter, no requiere llave valor "incremento=x"
+            // y agregamos '?' para arrancar el QueryString de oficios
+            string request = "api/Hospital/IncrementarSalarios/" + incremento + "?" + GetOficiosRequest(oficios);
+            using (HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(this.UrlApi);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(header);
+                HttpResponseMessage response = await client.PutAsync(request, null);
+
+            }
+        }
+
+        public async Task<List<string>> GetOficiosAsync()
+        {
+            string request = "api/Hospital/Oficios";
+            List<string> oficios = await CallApiAsync<List<string>>(request);
+            return oficios;
+        }
     }
 }
